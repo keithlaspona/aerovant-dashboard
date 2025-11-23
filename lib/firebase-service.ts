@@ -21,7 +21,13 @@ async function firebaseRequest(path: string, options?: RequestInit) {
 
     console.log("[v0] Making API request to:", apiRoute, "with method:", options?.method || "GET")
 
-    const response = await fetch(apiRoute, options)
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+    const fullUrl = apiRoute.startsWith("http") ? apiRoute : `${baseUrl}${apiRoute}`
+
+    const response = await fetch(fullUrl, {
+      ...options,
+      cache: options?.cache || "no-store",
+    })
 
     if (!response.ok) {
       const errorText = await response.text()
