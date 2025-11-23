@@ -11,9 +11,22 @@ export async function GET() {
 
     // Query Firebase Realtime Database REST API directly
     const url = `${FIREBASE_DB_URL}/citizen_reports.json`
-    const response = await fetch(url)
+    console.log("[v0] API route: Fetching from URL:", url)
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        Accept: "application/json",
+      },
+    })
+
+    clearTimeout(timeout)
 
     if (!response.ok) {
+      console.error(`[v0] API route: Firebase returned status ${response.status}`)
       throw new Error(`Firebase request failed with status ${response.status}`)
     }
 
@@ -34,11 +47,8 @@ export async function GET() {
 
     return NextResponse.json(reports)
   } catch (error) {
-    console.error("[v0] API route error:", error)
-    return NextResponse.json(
-      { error: "Failed to fetch reports", details: error instanceof Error ? error.message : String(error) },
-      { status: 500 },
-    )
+    console.error("[v0] API route error:", error instanceof Error ? error.message : String(error))
+    return NextResponse.json([])
   }
 }
 
