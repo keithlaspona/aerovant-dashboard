@@ -111,7 +111,10 @@ export async function getSensorDataInRange(startTime: Date, endTime: Date): Prom
 export async function getAllCitizenReports(): Promise<CitizenReport[]> {
   try {
     console.log("[v0] Fetching citizen reports from Firebase...")
-    const response = await fetch("/api/reports", {
+    const baseUrl = typeof window === "undefined" ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000" : ""
+    const url = typeof window === "undefined" ? `${baseUrl}/api/reports` : "/api/reports"
+
+    const response = await fetch(url, {
       cache: "no-store",
     })
 
