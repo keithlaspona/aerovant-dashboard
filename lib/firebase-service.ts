@@ -111,26 +111,43 @@ export async function getSensorDataInRange(startTime: Date, endTime: Date): Prom
 export async function getAllCitizenReports(): Promise<CitizenReport[]> {
   try {
     console.log("[v0] Fetching citizen reports from Firebase...")
-    const baseUrl = typeof window === "undefined" ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000" : ""
-    const url = typeof window === "undefined" ? `${baseUrl}/api/reports` : "/api/reports"
+    const FIREBASE_DB_URL = "https://aerovant-monitoring-default-rtdb.asia-southeast1.firebasedatabase.app"
+    const url = `${FIREBASE_DB_URL}/citizen_reports.json`
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10000) // 10 second timeout
 
     const response = await fetch(url, {
+      signal: controller.signal,
       cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
     })
 
+    clearTimeout(timeout)
+
     if (!response.ok) {
-      console.log("[v0] API call failed with status", response.status)
+      console.log("[v0] Firebase API call failed with status", response.status)
       throw new Error(`Failed to fetch citizen reports: ${response.status}`)
     }
 
     const data = await response.json()
     console.log("[v0] Citizen reports fetched successfully")
 
-    if (!Array.isArray(data)) {
+    if (!data || typeof data !== "object") {
       throw new Error("Invalid citizen reports response format")
     }
 
-    return data
+    // Transform Firebase object to array format
+    const reports = Object.entries(data).map(([id, report]) => ({
+      id,
+      ...(report as any),
+      notes: (report as any).description, // Map description to notes
+      location: (report as any).location_area, // Map location_area to location
+    }))
+
+    return reports as CitizenReport[]
   } catch (error) {
     console.error("[v0] Error fetching citizen reports from Firebase:", error)
     throw error
