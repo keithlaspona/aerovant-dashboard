@@ -1,0 +1,47 @@
+-- This SQL file documents the Firebase Realtime Database structure
+-- Firebase uses JSON structure, not SQL tables
+-- This is for documentation purposes
+
+-- Structure: aerovant_readings
+-- Path: /aerovant_readings/{reading_id}
+-- {
+--   "timestamp": "2025-01-12T10:30:00Z",
+--   "readings": {
+--     "MQ135_ppm": 45.2,
+--     "MQ2_ppm": 12.5,
+--     "MQ4_ppm": 8.3,
+--     "MQ5_ppm": 15.7,
+--     "MQ9_ppm": 22.1
+--   },
+--   "environment": {
+--     "temperature": 28.5,
+--     "humidity": 65.2
+--   },
+--   "ml_prediction": {
+--     "classification": "Moderate",
+--     "confidence": 0.85
+--   }
+-- }
+
+-- Structure: citizen_reports
+-- Path: /citizen_reports/{report_id}
+-- {
+--   "location": "Near USTP Main Gate",
+--   "latitude": 8.486071,
+--   "longitude": 124.656805,
+--   "report_type": "smoke",
+--   "notes": "Heavy smoke observed from nearby area",
+--   "timestamp": "2025-01-12T10:30:00Z",
+--   "status": "pending",
+--   "reporter_name": "John Doe",
+--   "reporter_contact": "john@example.com"
+-- }
+
+-- Structure: users (for future authentication)
+-- Path: /users/{user_id}
+-- {
+--   "email": "user@example.com",
+--   "role": "citizen",
+--   "name": "John Doe",
+--   "created_at": "2025-01-12T10:30:00Z"
+-- }
