@@ -80,7 +80,28 @@ export async function getLatestSensorData(): Promise<SensorReading | null> {
 export async function getSensorDataInRange(startTime: Date, endTime: Date): Promise<SensorReading[]> {
   try {
     console.log("[v0] Fetching sensor data range from Firebase...")
-    const data = await firebaseRequest("/aerovant_readings")
+    const FIREBASE_DB_URL = "https://aerovant-monitoring-default-rtdb.asia-southeast1.firebasedatabase.app"
+    const url = `${FIREBASE_DB_URL}/aerovant_readings.json`
+
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+
+    const response = await fetch(url, {
+      signal: controller.signal,
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+
+    clearTimeout(timeout)
+
+    if (!response.ok) {
+      console.log("[v0] Firebase API call failed with status", response.status)
+      throw new Error(`Failed to fetch sensor data: ${response.status}`)
+    }
+
+    const data = await response.json()
 
     if (!data || typeof data !== "object") {
       console.log("[v0] No data returned from Firebase")
