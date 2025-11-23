@@ -187,7 +187,7 @@ export async function submitCitizenReport(
       status: "pending",
     }
 
-    const result = await firebaseRequest("/citizen_reports", {
+    const response = await fetch("/api/reports", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -195,6 +195,13 @@ export async function submitCitizenReport(
       body: JSON.stringify(newReport),
     })
 
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error("[v0] Report submission failed:", response.status, errorText)
+      throw new Error(`Failed to submit report: ${response.status}`)
+    }
+
+    const result = await response.json()
     console.log("[v0] Report submitted successfully:", result)
     return true
   } catch (error) {
