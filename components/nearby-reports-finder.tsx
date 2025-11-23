@@ -24,11 +24,17 @@ export function NearbyReportsFinder({ sensorLat, sensorLng }: NearbyReportsFinde
 
     try {
       const response = await fetch(`/api/nearby-reports?lat=${sensorLat}&lon=${sensorLng}&radius=10`)
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch nearby reports: ${response.status} ${response.statusText}`)
+      }
+
       const data = await response.json()
       setReports(data)
     } catch (error) {
-      console.error("Error fetching nearby reports:", error)
-      alert("Failed to fetch nearby reports")
+      console.error("[v0] Error fetching nearby reports:", error)
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred"
+      alert(`Error: ${errorMessage}`)
     } finally {
       setLoading(false)
     }
