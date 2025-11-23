@@ -7,71 +7,6 @@ export const SENSOR_LOCATION = {
   name: "USTP Campus",
 }
 
-const MOCK_SENSOR_READINGS: SensorReading[] = [
-  {
-    timestamp: new Date(Date.now() - 5 * 60000).toISOString(),
-    readings: {
-      MQ135_ppm: 35,
-      MQ2_ppm: 52,
-      MQ3_ppm: 28,
-      MQ6_ppm: 15,
-      MQ9_ppm: 0.8,
-    },
-    environment: {
-      temperature: 28.5,
-      humidity: 72,
-      env_index: 65,
-    },
-    ml_prediction: {
-      classification: "Moderate",
-      confidence: 0.87,
-    },
-    location: {
-      latitude: 8.486071,
-      longitude: 124.656805,
-    },
-  },
-  {
-    timestamp: new Date(Date.now() - 10 * 60000).toISOString(),
-    readings: {
-      MQ135_ppm: 38,
-      MQ2_ppm: 55,
-      MQ3_ppm: 30,
-      MQ6_ppm: 16,
-      MQ9_ppm: 0.9,
-    },
-    environment: {
-      temperature: 28.2,
-      humidity: 70,
-      env_index: 68,
-    },
-    ml_prediction: {
-      classification: "Moderate",
-      confidence: 0.85,
-    },
-    location: {
-      latitude: 8.486071,
-      longitude: 124.656805,
-    },
-  },
-]
-
-const MOCK_CITIZEN_REPORTS: CitizenReport[] = [
-  {
-    id: "mock-1",
-    description: "Noticed unusual odor near the market area",
-    location_area: "Market District",
-    latitude: 8.489,
-    longitude: 124.658,
-    severity: "medium",
-    photos: [],
-    timestamp: new Date(Date.now() - 2 * 60 * 60000).toISOString(),
-    status: "pending",
-    deployed: false,
-    messages: [],
-  },
-]
-
 // Helper function to make local API route calls
 async function firebaseRequest(path: string, options?: RequestInit) {
   try {
@@ -114,7 +49,7 @@ export async function getLatestSensorData(): Promise<SensorReading | null> {
 
     if (!response.ok) {
       console.log("[v0] getLatestSensorData: API call failed with status", response.status)
-      return MOCK_SENSOR_READINGS[0] || null
+      throw new Error(`Failed to fetch sensor data: ${response.status}`)
     }
 
     const latestReading = await response.json()
@@ -129,12 +64,10 @@ export async function getLatestSensorData(): Promise<SensorReading | null> {
       }
     }
 
-    console.log("[v0] getLatestSensorData: Invalid response, using mock data")
-    return MOCK_SENSOR_READINGS[0] || null
+    throw new Error("Invalid sensor data response format")
   } catch (error) {
     console.error("[v0] getLatestSensorData error:", error)
-    console.log("[v0] getLatestSensorData: Falling back to mock data")
-    return MOCK_SENSOR_READINGS[0] || null
+    throw error
   }
 }
 
@@ -145,7 +78,7 @@ export async function getSensorDataInRange(startTime: Date, endTime: Date): Prom
 
     if (!data || typeof data !== "object") {
       console.log("[v0] No data returned from Firebase")
-      return MOCK_SENSOR_READINGS
+      throw new Error("No sensor data returned from Firebase")
     }
 
     const filtered: SensorReading[] = []
@@ -165,29 +98,33 @@ export async function getSensorDataInRange(startTime: Date, endTime: Date): Prom
     return filtered.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
   } catch (error) {
     console.error("[v0] Error fetching sensor data range from Firebase:", error)
-    console.log("[v0] Falling back to mock sensor data range")
-    return MOCK_SENSOR_READINGS
+    throw error
   }
 }
 
 export async function getAllCitizenReports(): Promise<CitizenReport[]> {
   try {
     console.log("[v0] Fetching citizen reports from Firebase...")
-    const data = await firebaseRequest("/citizen_reports")
+    const response = await fetch("/api/reports", {
+      cache: "no-store",
+    })
 
-    if (!data || typeof data !== "object") {
-      console.log("[v0] No citizen reports returned from Firebase")
-      return MOCK_CITIZEN_REPORTS
+    if (!response.ok) {
+      console.log("[v0] API call failed with status", response.status)
+      throw new Error(`Failed to fetch citizen reports: ${response.status}`)
     }
 
-    return Object.entries(data).map(([id, report]) => ({
-      id,
-      ...(report as Omit<CitizenReport, "id">),
-    }))
+    const data = await response.json()
+    console.log("[v0] Citizen reports fetched successfully")
+
+    if (!Array.isArray(data)) {
+      throw new Error("Invalid citizen reports response format")
+    }
+
+    return data
   } catch (error) {
     console.error("[v0] Error fetching citizen reports from Firebase:", error)
-    console.log("[v0] Falling back to mock citizen reports")
-    return MOCK_CITIZEN_REPORTS
+    throw error
   }
 }
 
