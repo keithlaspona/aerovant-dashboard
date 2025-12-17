@@ -2,65 +2,132 @@
 
 A comprehensive real-time air quality monitoring application built with Next.js, Firebase, and TypeScript.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Getting Started](#getting-started)
+- [Project Structure](#project-structure)
+- [Database Structure](#database-structure)
+- [API Routes](#api-routes)
+- [Configuration](#configuration)
+- [Sensor Information](#sensor-information)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Overview
+
+Aerovant is a real-time air quality monitoring system designed for USTP Campus and the surrounding community in Cagayan de Oro, Philippines. The system integrates multiple gas sensors (MQ series) to provide comprehensive air quality data, citizen reporting capabilities, and stakeholder analytics.
+
+Key capabilities include real-time monitoring with auto-refresh every 30 seconds, location-based reporting using GPS coordinates, interactive analytics with historical data visualization, visual mapping of sensor locations and community reports, and ML-powered predictions for air quality classification.
+
 ## Features
 
 ### Citizen-Facing Features
-- **Real-time Air Quality Dashboard**: View current air quality readings from multiple gas sensors
-- **Interactive Monitoring**: Auto-refreshing data every 30 seconds
-- **Community Reports**: Submit and view air quality concerns in your area
-- **Location-based Reporting**: Use GPS to pinpoint report locations
-- **Visual Map**: See sensor location and nearby reports on an interactive map
+
+- Real-time Air Quality Dashboard: View current air quality readings from multiple gas sensors
+- Interactive Monitoring: Auto-refreshing data every 30 seconds
+- Community Reports: Submit and view air quality concerns in your area
+- Location-based Reporting: Use GPS to pinpoint report locations
+- Visual Map: See sensor location and nearby reports on an interactive map
 
 ### Stakeholder Features
-- **Comprehensive Dashboard**: Overview of all system metrics and reports
-- **Report Management**: Review, update status, and manage citizen reports
-- **Analytics**: Historical data visualization with interactive charts
-- **Filtering**: Filter reports by status and type
-- **Real-time Updates**: Monitor air quality trends over time
+
+- Comprehensive Dashboard: Overview of all system metrics and reports
+- Report Management: Review, update status, and manage citizen reports
+- Analytics: Historical data visualization with interactive charts
+- Filtering: Filter reports by status and type
+- Real-time Updates: Monitor air quality trends over time
 
 ## Technology Stack
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Database**: Firebase Realtime Database
-- **Styling**: Tailwind CSS v4 with custom Aerovant theme
-- **Charts**: Recharts for data visualization
-- **UI Components**: shadcn/ui component library
+- Framework: Next.js 15 with App Router
+- Language: TypeScript
+- Database: Firebase Realtime Database
+- Styling: Tailwind CSS v4 with custom Aerovant theme
+- Charts: Recharts for data visualization
+- UI Components: shadcn/ui component library
+- Package Manager: npm or pnpm
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ installed
-- Firebase Realtime Database set up
-- Environment variables configured
+Before you begin, ensure you have the following installed:
+
+- Node.js 18 or higher
+- npm or pnpm package manager
+- Firebase project with Realtime Database enabled
+- Git for version control
 
 ### Installation
 
-1. Clone the repository
-2. Install dependencies:
-   \`\`\`bash
-   npm install
-   \`\`\`
+1. Clone the repository:
+```bash
+git clone https://github.com/keithlaspona/aerovant-dashboard.git
+cd aerovant-dashboard
+```
 
-3. Create a `.env.local` file with your Firebase configuration:
-   \`\`\`
-   NEXT_PUBLIC_FIREBASE_URL=your-firebase-database-url
-   \`\`\`
+2. Install dependencies:
+```bash
+npm install
+# or
+pnpm install
+```
+
+3. Create environment configuration:
+
+Create a `.env.local` file in the root directory:
+```
+NEXT_PUBLIC_FIREBASE_URL=your-firebase-database-url
+```
 
 4. Run the development server:
-   \`\`\`bash
-   npm run dev
-   \`\`\`
+```bash
+npm run dev
+# or
+pnpm dev
+```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+5. Open your browser:
+
+Navigate to http://localhost:3000 to view the application.
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+## Project Structure
+
+```
+aerovant-dashboard/
+├── app/                      # Next.js App Router pages
+│   ├── page.tsx             # Citizen dashboard
+│   ├── stakeholders/        # Stakeholder pages
+│   └── api/                 # API routes
+├── components/              # React components
+│   ├── ui/                  # shadcn/ui components
+│   └── ...                  # Custom components
+├── lib/                     # Utility functions
+│   ├── firebase.ts          # Firebase configuration
+│   └── utils.ts             # Helper functions
+├── public/                  # Static assets
+├── scripts/                 # Utility scripts
+├── styles/                  # Global styles
+└── ...                      # Configuration files
+```
 
 ## Database Structure
 
 The application uses Firebase Realtime Database with the following structure:
 
-### Sensor Readings (`/aerovant_readings`)
-\`\`\`json
+### Sensor Readings Path: `/aerovant_readings`
+
+```json
 {
   "reading_id": {
     "timestamp": "2025-01-12T10:30:00Z",
@@ -81,10 +148,11 @@ The application uses Firebase Realtime Database with the following structure:
     }
   }
 }
-\`\`\`
+```
 
-### Citizen Reports (`/citizen_reports`)
-\`\`\`json
+### Citizen Reports Path: `/citizen_reports`
+
+```json
 {
   "report_id": {
     "location": "Near USTP Main Gate",
@@ -98,59 +166,133 @@ The application uses Firebase Realtime Database with the following structure:
     "reporter_contact": "john@example.com"
   }
 }
-\`\`\`
+```
 
-## Deployment
+### Data Field Descriptions
 
-### Deploy to Vercel
+#### Sensor Readings
+- `timestamp`: ISO 8601 formatted datetime
+- `MQ135_ppm`: Air quality sensor (CO2, NH3, NOx, smoke) in parts per million
+- `MQ2_ppm`: Combustible gases and smoke sensor in ppm
+- `MQ4_ppm`: Methane and natural gas sensor in ppm
+- `MQ5_ppm`: LPG, natural gas, coal gas sensor in ppm
+- `MQ9_ppm`: Carbon monoxide and flammable gases sensor in ppm
+- `temperature`: Ambient temperature in Celsius
+- `humidity`: Relative humidity percentage
+- `classification`: ML model prediction (Good, Moderate, Unhealthy, etc.)
+- `confidence`: ML model confidence score (0-1)
 
-1. Push your code to GitHub
-2. Import your repository in Vercel
-3. Add your environment variables in Vercel project settings
-4. Deploy!
+#### Citizen Reports
+- `location`: Descriptive location text
+- `latitude`: GPS latitude coordinate
+- `longitude`: GPS longitude coordinate
+- `report_type`: Type of issue (smoke, odor, dust, etc.)
+- `notes`: Additional details from reporter
+- `timestamp`: ISO 8601 formatted datetime
+- `status`: Report status (pending, investigating, resolved, dismissed)
+- `reporter_name`: Name of person submitting report
+- `reporter_contact`: Email or contact information
 
-The application is optimized for Vercel deployment with:
-- Server-side rendering for real-time data
-- API routes for data fetching
-- Automatic static optimization where possible
+## API Routes
 
-## Color Branding
+The application provides the following API endpoints:
 
-The application uses a custom blue/teal color palette:
-- Navy: #001D39
-- Deep Blue: #0A4174
-- Medium Blue: #49769F
-- Teal: #4E8EA2
-- Light Teal: #6EA2B3
-- Sky Blue: #7BBDE8
-- Pale Blue: #BDD8E9
+### GET /api/readings
+Fetch the latest sensor readings from Firebase.
+
+### GET /api/reports
+Fetch all citizen reports.
+
+### POST /api/reports
+Submit a new citizen report.
+
+### PATCH /api/reports/[id]
+Update an existing report status.
+
+## Configuration
+
+### Environment Variables
+
+The application requires the following environment variable:
+
+```
+NEXT_PUBLIC_FIREBASE_URL=your-firebase-database-url
+```
+
+Add this to your `.env.local` file in the root directory.
 
 ## Sensor Information
 
-**Location**: USTP Campus, Cagayan de Oro, Philippines  
-**Coordinates**: 8.486071°N, 124.656805°E
+### Location Details
+- Location: USTP Campus, Cagayan de Oro, Philippines
+- Coordinates: 8.486071°N, 124.656805°E
 
-**Sensors**:
-- MQ135: Air quality (CO2, NH3, NOx, smoke)
-- MQ2: Combustible gases and smoke
-- MQ4: Methane and natural gas
-- MQ5: LPG, natural gas, coal gas
-- MQ9: Carbon monoxide and flammable gases
-- DHT22: Temperature and humidity
+### Sensor Array
+
+The system utilizes the following sensors:
+
+- MQ135: Air quality sensor detecting CO2, NH3, NOx, and smoke
+- MQ2: Combustible gases and smoke detection
+- MQ4: Methane and natural gas detection
+- MQ5: LPG, natural gas, and coal gas detection
+- MQ9: Carbon monoxide and flammable gases detection
+- DHT22: Temperature and humidity monitoring
+
+### Sensor Calibration
+
+Sensors are calibrated based on manufacturer specifications and local environmental conditions. Regular maintenance and calibration checks are recommended every 6 months.
 
 ## Contributing
 
-This is a monitoring system for USTP and the surrounding community. For questions or contributions, please contact the development team.
+This is a monitoring system for USTP and the surrounding community. We welcome contributions from developers, researchers, and community members.
+
+### How to Contribute
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit your changes: `git commit -m 'Add feature'`
+4. Push to the branch: `git push origin feature-name`
+5. Submit a pull request
+
+### Guidelines
+
+- Follow existing code style and conventions
+- Write clear commit messages
+- Test your changes thoroughly
+- Update documentation as needed
+- Ensure all tests pass before submitting
+
+### Reporting Issues
+
+If you encounter bugs or have feature requests:
+- Check existing issues first
+- Provide detailed description
+- Include steps to reproduce (for bugs)
+- Add screenshots if applicable
+
+### Contact
+
+For questions or collaboration inquiries, please contact the development team through the repository issues page or via email.
 
 ## License
 
 Copyright © 2025 Aerovant Project. All rights reserved.
-\`\`\`
 
+This software is proprietary and confidential. Unauthorized copying, distribution, or modification of this software, via any medium, is strictly prohibited without express written permission from the Aerovant Project team.
 
+## Acknowledgments
 
-<AssistantMessageContentPart partEncoded="eyJ0eXBlIjoidGFzay13YWl0aW5nLXYxIiwiY3JlYXRlZEF0IjoxNzYwMjc3ODEyNjMyLCJmaW5pc2hlZEF0IjoxNzYwMjc3ODEyNjMyLCJpZCI6IkZxd01IelNnM0tFNlBnZkEiLCJsYXN0UGFydFNlbnRBdCI6MTc2MDI3NzgxMjYzMiwicGFydHMiOlt7InR5cGUiOiJ0b29sLWNhbGxzIn1dfQ==" />
+- USTP for providing the location and support for sensor deployment
+- Firebase for real-time database infrastructure
+- Next.js team for the excellent framework
+- The open-source community for various tools and libraries used in this project
 
+## Support
 
+For technical support or questions:
+- Create an issue in the GitHub repository
+- Contact the development team
 
-<AssistantMessageContentPart partEncoded="eyJ0eXBlIjoidGFzay1tYW5hZ2UtdG9kb3MtdjEiLCJpZCI6Ikkxa29lNTF4RncxUkNxQkciLCJ0YXNrTmFtZUFjdGl2ZSI6IkNvbXBsZXRpbmcgcHJvamVjdCIsInRvb2xDYWxsSWQiOiJ0b29sdV8wMURGQldmNm9mcVRyakRaMlBmUGJISHAiLCJ0YXNrTmFtZUNvbXBsZXRlIjoiQ29tcGxldGVkIHByb2plY3QiLCJjcmVhdGVkQXQiOjE3NjAyNzc4MTMzMjIsImZpbmlzaGVkQXQiOm51bGwsInBhcnRzIjpbXSwibGFzdFBhcnRTZW50QXQiOm51bGx9" />
+## Changelog
+
+See CHANGELOG.md for a list of changes and version history.
