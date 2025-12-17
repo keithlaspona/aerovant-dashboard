@@ -179,7 +179,7 @@ The application uses Firebase Realtime Database with the following structure:
 - `MQ9_ppm`: Carbon monoxide and flammable gases sensor in ppm
 - `temperature`: Ambient temperature in Celsius
 - `humidity`: Relative humidity percentage
-- `classification`: ML model prediction (Good, Moderate, Unhealthy, etc.)
+- `classification`: ML model prediction (0 = Critical, 1 = Stable)
 - `confidence`: ML model confidence score (0-1)
 
 #### Citizen Reports
