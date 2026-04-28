@@ -36,8 +36,8 @@ const SENSOR_RANGES = {
 // Smoothing factor for realistic transitions (0-1, higher = more smoothing)
 const SMOOTHING_FACTOR = 0.7
 
-// Chance of a spike event (0-1)
-const SPIKE_CHANCE = 0.05
+// 20% chance of a critical reading, 80% stable
+const CRITICAL_PROBABILITY = 0.2
 
 // Current trend direction for each sensor (-1, 0, 1)
 let trends: Record<string, number> = {
@@ -53,26 +53,20 @@ let trends: Record<string, number> = {
 // Counter for trend changes
 let trendCounter = 0
 
+// Track whether the last reading was critical to prevent back-to-back criticals
+let lastReadingWasCritical = false
+
 /**
- * Generate a smooth value transition with occasional spikes
+ * Generate a smooth value transition staying within the safe zone (below threshold).
  */
-function generateSmoothValue(
+function generateSafeValue(
   currentValue: number,
   min: number,
-  max: number,
-  key: string,
-  allowSpike: boolean = true
+  safeMax: number,
+  key: string
 ): number {
-  // Check for spike event
-  if (allowSpike && Math.random() < SPIKE_CHANCE) {
-    // Generate a spike towards the upper range
-    const spikeValue = min + (max - min) * (0.7 + Math.random() * 0.3)
-    return Math.round(spikeValue * 100) / 100
-  }
-
   // Update trend periodically
   if (trendCounter % 5 === 0) {
-    // Randomly change trend direction
     const trendChange = Math.random()
     if (trendChange < 0.3) {
       trends[key] = -1 // Decreasing
@@ -83,16 +77,54 @@ function generateSmoothValue(
     }
   }
 
-  // Calculate base change with trend influence
-  const range = max - min
+  const range = safeMax - min
   const baseChange = (Math.random() - 0.5) * range * 0.1
   const trendInfluence = trends[key] * range * 0.02
   const totalChange = baseChange + trendInfluence
 
-  // Apply smoothing
   const newValue = currentValue * SMOOTHING_FACTOR + (currentValue + totalChange) * (1 - SMOOTHING_FACTOR)
 
-  // Clamp to range
+  // Clamp strictly within safe zone
+  return Math.round(Math.max(min, Math.min(safeMax * 0.95, newValue)) * 100) / 100
+}
+
+/**
+ * Generate a critical spike value that exceeds the threshold for exactly one reading.
+ * The value is pushed into the critical zone (threshold to max) for a single event.
+ */
+function generateCriticalValue(threshold: number, max: number): number {
+  // Spike between threshold+5% and max*0.95 for a realistic but clearly critical value
+  const spikeMin = threshold * 1.05
+  const spikeMax = max * 0.95
+  return Math.round((spikeMin + Math.random() * (spikeMax - spikeMin)) * 100) / 100
+}
+
+/**
+ * Generate a smooth value transition for environment sensors (no spikes).
+ */
+function generateEnvValue(
+  currentValue: number,
+  min: number,
+  max: number,
+  key: string
+): number {
+  if (trendCounter % 5 === 0) {
+    const trendChange = Math.random()
+    if (trendChange < 0.3) {
+      trends[key] = -1
+    } else if (trendChange < 0.6) {
+      trends[key] = 1
+    } else {
+      trends[key] = 0
+    }
+  }
+
+  const range = max - min
+  const baseChange = (Math.random() - 0.5) * range * 0.05
+  const trendInfluence = trends[key] * range * 0.01
+  const totalChange = baseChange + trendInfluence
+
+  const newValue = currentValue * SMOOTHING_FACTOR + (currentValue + totalChange) * (1 - SMOOTHING_FACTOR)
   return Math.round(Math.max(min, Math.min(max, newValue)) * 100) / 100
 }
 
@@ -150,12 +182,18 @@ function calculateEnvIndex(readings: SensorReading["readings"], temp: number, hu
 }
 
 /**
- * Generate a single simulated sensor reading
+ * Generate a single simulated sensor reading.
+ *
+ * Distribution rules:
+ *  - 80% of readings → all sensors stay within safe range (Stable)
+ *  - 20% of readings → exactly one random sensor spikes into critical zone (Critical)
+ *  - A critical reading is NEVER allowed to follow another critical reading
+ *    (lastReadingWasCritical guard), ensuring criticals are always isolated events.
  */
 export function generateSimulatedReading(): SensorReading {
   trendCounter++
 
-  // Get previous values or initialize with mid-range values
+  // Get previous values or initialize with mid-range safe values
   const prev = lastSimulatedData || {
     readings: {
       MQ2_ppm: (SENSOR_RANGES.MQ2.min + SENSOR_RANGES.MQ2.safeMax) / 2,
@@ -170,30 +208,67 @@ export function generateSimulatedReading(): SensorReading {
     },
   }
 
-  // Generate new readings with smooth transitions
-  const readings = {
-    MQ2_ppm: generateSmoothValue(prev.readings.MQ2_ppm, SENSOR_RANGES.MQ2.min, SENSOR_RANGES.MQ2.max, "MQ2"),
-    MQ3_ppm: generateSmoothValue(prev.readings.MQ3_ppm, SENSOR_RANGES.MQ3.min, SENSOR_RANGES.MQ3.max, "MQ3"),
-    MQ6_ppm: generateSmoothValue(prev.readings.MQ6_ppm, SENSOR_RANGES.MQ6.min, SENSOR_RANGES.MQ6.max, "MQ6"),
-    MQ9_ppm: generateSmoothValue(prev.readings.MQ9_ppm, SENSOR_RANGES.MQ9.min, SENSOR_RANGES.MQ9.max, "MQ9"),
-    MQ135_ppm: generateSmoothValue(prev.readings.MQ135_ppm, SENSOR_RANGES.MQ135.min, SENSOR_RANGES.MQ135.max, "MQ135"),
+  // Decide whether this reading will be critical.
+  // Blocked if the last reading was already critical (no back-to-back criticals).
+  const rollCritical = !lastReadingWasCritical && Math.random() < CRITICAL_PROBABILITY
+
+  let readings: SensorReading["readings"]
+
+  if (rollCritical) {
+    // Pick exactly one sensor to exceed its threshold
+    const spikeTargets = ["MQ2", "MQ3", "MQ6", "MQ9", "MQ135"] as const
+    const spikeSensor = spikeTargets[Math.floor(Math.random() * spikeTargets.length)]
+
+    readings = {
+      MQ2_ppm:
+        spikeSensor === "MQ2"
+          ? generateCriticalValue(CRITICAL_THRESHOLDS.MQ2, SENSOR_RANGES.MQ2.max)
+          : generateSafeValue(prev.readings.MQ2_ppm, SENSOR_RANGES.MQ2.min, SENSOR_RANGES.MQ2.safeMax, "MQ2"),
+      MQ3_ppm:
+        spikeSensor === "MQ3"
+          ? generateCriticalValue(CRITICAL_THRESHOLDS.MQ3, SENSOR_RANGES.MQ3.max)
+          : generateSafeValue(prev.readings.MQ3_ppm, SENSOR_RANGES.MQ3.min, SENSOR_RANGES.MQ3.safeMax, "MQ3"),
+      MQ6_ppm:
+        spikeSensor === "MQ6"
+          ? generateCriticalValue(CRITICAL_THRESHOLDS.MQ6, SENSOR_RANGES.MQ6.max)
+          : generateSafeValue(prev.readings.MQ6_ppm, SENSOR_RANGES.MQ6.min, SENSOR_RANGES.MQ6.safeMax, "MQ6"),
+      MQ9_ppm:
+        spikeSensor === "MQ9"
+          ? generateCriticalValue(CRITICAL_THRESHOLDS.MQ9, SENSOR_RANGES.MQ9.max)
+          : generateSafeValue(prev.readings.MQ9_ppm, SENSOR_RANGES.MQ9.min, SENSOR_RANGES.MQ9.safeMax, "MQ9"),
+      MQ135_ppm:
+        spikeSensor === "MQ135"
+          ? generateCriticalValue(CRITICAL_THRESHOLDS.MQ135, SENSOR_RANGES.MQ135.max)
+          : generateSafeValue(prev.readings.MQ135_ppm, SENSOR_RANGES.MQ135.min, SENSOR_RANGES.MQ135.safeMax, "MQ135"),
+    }
+
+    lastReadingWasCritical = true
+  } else {
+    // All sensors stay comfortably within safe range
+    readings = {
+      MQ2_ppm: generateSafeValue(prev.readings.MQ2_ppm, SENSOR_RANGES.MQ2.min, SENSOR_RANGES.MQ2.safeMax, "MQ2"),
+      MQ3_ppm: generateSafeValue(prev.readings.MQ3_ppm, SENSOR_RANGES.MQ3.min, SENSOR_RANGES.MQ3.safeMax, "MQ3"),
+      MQ6_ppm: generateSafeValue(prev.readings.MQ6_ppm, SENSOR_RANGES.MQ6.min, SENSOR_RANGES.MQ6.safeMax, "MQ6"),
+      MQ9_ppm: generateSafeValue(prev.readings.MQ9_ppm, SENSOR_RANGES.MQ9.min, SENSOR_RANGES.MQ9.safeMax, "MQ9"),
+      MQ135_ppm: generateSafeValue(prev.readings.MQ135_ppm, SENSOR_RANGES.MQ135.min, SENSOR_RANGES.MQ135.safeMax, "MQ135"),
+    }
+
+    lastReadingWasCritical = false
   }
 
-  // Temperature and humidity change more slowly
-  const temperature = generateSmoothValue(
+  // Environment sensors change slowly and never spike
+  const temperature = generateEnvValue(
     prev.environment.temperature,
     SENSOR_RANGES.temperature.min,
     SENSOR_RANGES.temperature.max,
-    "temperature",
-    false
+    "temperature"
   )
 
-  const humidity = generateSmoothValue(
+  const humidity = generateEnvValue(
     prev.environment.humidity,
     SENSOR_RANGES.humidity.min,
     SENSOR_RANGES.humidity.max,
-    "humidity",
-    false
+    "humidity"
   )
 
   const envIndex = calculateEnvIndex(readings, temperature, humidity)
@@ -323,6 +398,8 @@ export function triggerSpikeEvent(): SensorReading {
     ml_prediction: mlPrediction,
   }
 
+  // Mark as critical so the next auto-generated reading is forced stable
+  lastReadingWasCritical = true
   lastSimulatedData = spikeData
 
   // Notify callbacks
