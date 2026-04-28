@@ -148,9 +148,11 @@ function calculateStatus(readings: SensorReading["readings"]): { classification:
   maxRatio = Math.max(maxRatio, readings.MQ9_ppm / CRITICAL_THRESHOLDS.MQ9)
   maxRatio = Math.max(maxRatio, readings.MQ135_ppm / CRITICAL_THRESHOLDS.MQ135)
 
-  const confidence = isCritical
-    ? Math.min(0.95, 0.7 + maxRatio * 0.2)
-    : Math.min(0.95, 0.7 + (1 - maxRatio) * 0.2)
+  // Confidence always stays between 85% and 95%
+  const rawConfidence = isCritical
+    ? 0.85 + maxRatio * 0.1
+    : 0.85 + (1 - Math.min(maxRatio, 1)) * 0.1
+  const confidence = Math.min(0.95, Math.max(0.85, rawConfidence))
 
   return {
     classification: isCritical ? 0 : 1, // 0 = Critical, 1 = Stable (matching Firebase format)
