@@ -13,22 +13,23 @@ let lastSimulatedData: SensorReading | null = null
 let simulationInterval: NodeJS.Timeout | null = null
 let dataUpdateCallbacks: Set<(data: SensorReading) => void> = new Set()
 
-// Thresholds for critical status detection
+// Critical thresholds from Aerovant manuscript
+// Safe values are at or below threshold, Critical values exceed threshold
 const CRITICAL_THRESHOLDS = {
-  MQ2: 800,
-  MQ3: 900,
-  MQ6: 1000,
-  MQ9: 600,
-  MQ135: 700,
+  MQ2: 800,      // Butane/Smoke: ≤ 800 ppm = Safe, > 800 ppm = Critical
+  MQ3: 1000,     // Methane (MQ-4): ≤ 1000 ppm = Safe, > 1000 ppm = Critical
+  MQ6: 1000,     // LPG (MQ-5): ≤ 1000 ppm = Safe, > 1000 ppm = Critical
+  MQ9: 50,       // CO/Hydrogen: ≤ 50 ppm = Safe, > 50 ppm = Critical
+  MQ135: 25,     // Ammonia/Air Quality: ≤ 25 ppm = Safe, > 25 ppm = Critical
 }
 
-// Sensor ranges for realistic simulation
+// Sensor ranges for realistic simulation - from manuscript objectives
 const SENSOR_RANGES = {
-  MQ2: { min: 200, max: 1000, safeMax: 600 },
-  MQ3: { min: 250, max: 1100, safeMax: 700 },
-  MQ6: { min: 300, max: 1200, safeMax: 800 },
-  MQ9: { min: 100, max: 800, safeMax: 500 },
-  MQ135: { min: 150, max: 900, safeMax: 550 },
+  MQ2: { min: 200, max: 1000, safeMax: 800 },       // Butane/Smoke
+  MQ3: { min: 300, max: 1200, safeMax: 1000 },      // Methane (MQ-4)
+  MQ6: { min: 250, max: 1100, safeMax: 1000 },      // LPG (MQ-5)
+  MQ9: { min: 10, max: 100, safeMax: 50 },          // CO/Hydrogen - very sensitive
+  MQ135: { min: 5, max: 50, safeMax: 25 },          // Ammonia/Air Quality - very sensitive
   temperature: { min: 24, max: 34 },
   humidity: { min: 40, max: 80 },
 }
