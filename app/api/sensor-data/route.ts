@@ -5,10 +5,30 @@ const FIREBASE_DB_URL = "https://aerovant-monitoring-default-rtdb.asia-southeast
 
 export const dynamic = "force-dynamic"
 
-// Server-side simulation state (persisted across requests)
-let serverSimulationEnabled = false
-let lastSimulatedData: ReturnType<typeof generateSimulatedReading> | null = null
-let lastSimulationUpdate = 0
+// Use globalThis to persist state across hot reloads in development
+// This ensures the simulation state survives module reloads
+interface SimulationState {
+  enabled: boolean
+  lastData: ReturnType<typeof generateSimulatedReading> | null
+  lastUpdate: number
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __aerovant_simulation__: SimulationState | undefined
+}
+
+// Initialize or get existing simulation state
+function getSimulationState(): SimulationState {
+  if (!globalThis.__aerovant_simulation__) {
+    globalThis.__aerovant_simulation__ = {
+      enabled: false,
+      lastData: null,
+      lastUpdate: 0
+    }
+  }
+  return globalThis.__aerovant_simulation__
+}
 
 async function fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
   for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -46,53 +66,55 @@ export async function POST(request: Request) {
   try {
     const body = await request.json()
     const { action, enabled } = body
+    const state = getSimulationState()
 
     if (action === "toggle") {
-      serverSimulationEnabled = !serverSimulationEnabled
-      if (serverSimulationEnabled) {
-        lastSimulatedData = generateSimulatedReading()
-        lastSimulationUpdate = Date.now()
+      state.enabled = !state.enabled
+      if (state.enabled) {
+        state.lastData = generateSimulatedReading()
+        state.lastUpdate = Date.now()
       } else {
-        lastSimulatedData = null
+        state.lastData = null
       }
-      console.log(`[v0] Simulation mode ${serverSimulationEnabled ? "ENABLED" : "DISABLED"}`)
+      console.log(`[v0] Simulation mode ${state.enabled ? "ENABLED" : "DISABLED"} (globalThis persisted)`)
       return NextResponse.json({ 
-        simulation: serverSimulationEnabled,
-        data: serverSimulationEnabled ? lastSimulatedData : null
+        simulation: state.enabled,
+        data: state.enabled ? state.lastData : null
       })
     }
 
     if (action === "set") {
-      serverSimulationEnabled = enabled === true
-      if (serverSimulationEnabled) {
-        lastSimulatedData = generateSimulatedReading()
-        lastSimulationUpdate = Date.now()
+      state.enabled = enabled === true
+      if (state.enabled) {
+        state.lastData = generateSimulatedReading()
+        state.lastUpdate = Date.now()
       } else {
-        lastSimulatedData = null
+        state.lastData = null
       }
-      console.log(`[v0] Simulation mode SET to ${serverSimulationEnabled}`)
+      console.log(`[v0] Simulation mode SET to ${state.enabled} (globalThis persisted)`)
       return NextResponse.json({ 
-        simulation: serverSimulationEnabled,
-        data: serverSimulationEnabled ? lastSimulatedData : null
+        simulation: state.enabled,
+        data: state.enabled ? state.lastData : null
       })
     }
 
     if (action === "status") {
+      console.log(`[v0] Simulation status check: ${state.enabled}`)
       return NextResponse.json({ 
-        simulation: serverSimulationEnabled,
-        data: serverSimulationEnabled ? lastSimulatedData : null
+        simulation: state.enabled,
+        data: state.enabled ? state.lastData : null
       })
     }
 
     if (action === "spike") {
-      if (serverSimulationEnabled) {
+      if (state.enabled) {
         // Generate a spike event
         const { triggerSpikeEvent } = await import("@/lib/simulation-service")
-        lastSimulatedData = triggerSpikeEvent()
-        lastSimulationUpdate = Date.now()
+        state.lastData = triggerSpikeEvent()
+        state.lastUpdate = Date.now()
         return NextResponse.json({ 
           simulation: true,
-          data: lastSimulatedData,
+          data: state.lastData,
           spike: true
         })
       }
@@ -109,19 +131,22 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const forceReal = requestUrl.searchParams.get("real") === "true"
+  const state = getSimulationState()
+
+  console.log(`[v0] GET request - simulation enabled: ${state.enabled}, forceReal: ${forceReal}`)
 
   // If simulation is enabled and not forcing real data
-  if (serverSimulationEnabled && !forceReal) {
+  if (state.enabled && !forceReal) {
     const now = Date.now()
     // Generate new data every 4 seconds
-    if (!lastSimulatedData || now - lastSimulationUpdate >= 4000) {
-      lastSimulatedData = generateSimulatedReading()
-      lastSimulationUpdate = now
+    if (!state.lastData || now - state.lastUpdate >= 4000) {
+      state.lastData = generateSimulatedReading()
+      state.lastUpdate = now
       console.log("[v0] Generated new simulated data")
     }
     
     return NextResponse.json({
-      ...lastSimulatedData,
+      ...state.lastData,
       _simulation: true
     })
   }
@@ -163,17 +188,18 @@ export async function GET(request: Request) {
     
     // Automatic fallback to simulation when Firebase is unavailable
     console.log("[v0] Firebase unavailable, auto-enabling simulation mode as fallback")
-    if (!serverSimulationEnabled) {
-      serverSimulationEnabled = true
-      lastSimulatedData = generateSimulatedReading()
-      lastSimulationUpdate = Date.now()
-    } else if (!lastSimulatedData || Date.now() - lastSimulationUpdate >= 4000) {
-      lastSimulatedData = generateSimulatedReading()
-      lastSimulationUpdate = Date.now()
+    const fallbackState = getSimulationState()
+    if (!fallbackState.enabled) {
+      fallbackState.enabled = true
+      fallbackState.lastData = generateSimulatedReading()
+      fallbackState.lastUpdate = Date.now()
+    } else if (!fallbackState.lastData || Date.now() - fallbackState.lastUpdate >= 4000) {
+      fallbackState.lastData = generateSimulatedReading()
+      fallbackState.lastUpdate = Date.now()
     }
     
     return NextResponse.json({
-      ...lastSimulatedData,
+      ...fallbackState.lastData,
       _simulation: true,
       _fallback: true
     })
