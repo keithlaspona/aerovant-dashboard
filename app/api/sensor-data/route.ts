@@ -18,11 +18,11 @@ declare global {
   var __aerovant_simulation__: SimulationState | undefined
 }
 
-// Initialize or get existing simulation state
+// Initialize or get existing simulation state — always enabled by default
 function getSimulationState(): SimulationState {
   if (!globalThis.__aerovant_simulation__) {
     globalThis.__aerovant_simulation__ = {
-      enabled: false,
+      enabled: true,
       lastData: null,
       lastUpdate: 0
     }
@@ -41,7 +41,6 @@ async function fetchWithRetry(url: string, maxRetries = 3): Promise<Response> {
         if (attempt < maxRetries - 1) {
           // Exponential backoff: 1s, 2s, 4s
           const delay = Math.pow(2, attempt) * 1000
-          console.log(`[v0] Rate limited, retrying in ${delay}ms...`)
           await new Promise((resolve) => setTimeout(resolve, delay))
           continue
         }
@@ -76,7 +75,7 @@ export async function POST(request: Request) {
       } else {
         state.lastData = null
       }
-      console.log(`[v0] Simulation mode ${state.enabled ? "ENABLED" : "DISABLED"} (globalThis persisted)`)
+
       return NextResponse.json({ 
         simulation: state.enabled,
         data: state.enabled ? state.lastData : null
@@ -91,7 +90,7 @@ export async function POST(request: Request) {
       } else {
         state.lastData = null
       }
-      console.log(`[v0] Simulation mode SET to ${state.enabled} (globalThis persisted)`)
+
       return NextResponse.json({ 
         simulation: state.enabled,
         data: state.enabled ? state.lastData : null
@@ -99,7 +98,7 @@ export async function POST(request: Request) {
     }
 
     if (action === "status") {
-      console.log(`[v0] Simulation status check: ${state.enabled}`)
+
       return NextResponse.json({ 
         simulation: state.enabled,
         data: state.enabled ? state.lastData : null
@@ -133,8 +132,6 @@ export async function GET(request: Request) {
   const forceReal = requestUrl.searchParams.get("real") === "true"
   const state = getSimulationState()
 
-  console.log(`[v0] GET request - simulation enabled: ${state.enabled}, forceReal: ${forceReal}`)
-
   // If simulation is enabled and not forcing real data
   if (state.enabled && !forceReal) {
     const now = Date.now()
@@ -142,7 +139,6 @@ export async function GET(request: Request) {
     if (!state.lastData || now - state.lastUpdate >= 4000) {
       state.lastData = generateSimulatedReading()
       state.lastUpdate = now
-      console.log("[v0] Generated new simulated data")
     }
     
     return NextResponse.json({
@@ -151,7 +147,7 @@ export async function GET(request: Request) {
     })
   }
   try {
-    console.log("[v0] API route: Fetching latest sensor data from Firebase REST API...")
+
 
     const firebaseUrl = `${FIREBASE_DB_URL}/aerovant_readings.json?orderBy="$key"&limitToLast=1`
     const response = await fetchWithRetry(firebaseUrl)
@@ -166,28 +162,27 @@ export async function GET(request: Request) {
     }
 
     const data = await response.json()
-    console.log("[v0] API route: Firebase REST response received")
+
 
     if (!data || typeof data !== "object") {
       return NextResponse.json({ error: "No sensor data available" }, { status: 404 })
     }
 
     const latestReading = Object.values(data)[0] as any
-    console.log("[v0] API route: Latest reading extracted:", JSON.stringify(latestReading))
+
 
     if (latestReading.mL_prediction && !latestReading.ml_prediction) {
       latestReading.ml_prediction = latestReading.mL_prediction
       delete latestReading.mL_prediction
     }
 
-    console.log("[v0] API route: ml_prediction in response:", latestReading?.ml_prediction)
+
 
     return NextResponse.json(latestReading)
   } catch (error) {
     console.error("[v0] API route error:", error)
     
     // Automatic fallback to simulation when Firebase is unavailable
-    console.log("[v0] Firebase unavailable, auto-enabling simulation mode as fallback")
     const fallbackState = getSimulationState()
     if (!fallbackState.enabled) {
       fallbackState.enabled = true
