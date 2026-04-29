@@ -82,17 +82,17 @@ export function AirSafetyIndexPanel({ initialData }: AirSafetyIndexPanelProps) {
     : "Critical gas levels detected. All activity in this area must cease immediately."
 
   return (
-    <Card className="h-full rounded-2xl border border-gray-300" style={{ backgroundColor: "#c9cfcf" }}>
-      <CardHeader className="pb-4">
+    <Card className="h-full rounded-2xl" style={{ backgroundColor: "#c9cfcf" }}>
+      <CardHeader className="pb-0">
         <CardTitle className="text-lg font-bold tracking-tighter text-[rgba(52,63,86,1)]">Air Safety Index</CardTitle>
         <div className="flex items-center gap-2 text-xs text-black/70">
           <Clock className="w-3 h-3" />
           <span>{new Date(data.timestamp).toLocaleString()}</span>
         </div>
-        <p className="text-[10px] text-black/60 mt-0.5">{timeAgo}</p>
+        <p className="text-[10px] text-black/60 mb-0">{timeAgo}</p>
       </CardHeader>
-      <CardContent className="space-y-4 pt-0">
-        <div className="bg-white rounded-lg p-4 space-y-1.5 font-mono text-xs border border-black/10">
+      <CardContent className="space-y-1.5 pt-0 -mt-[13px]">
+        <div className="bg-white rounded-lg p-4 space-y-1.5 font-mono text-xs border-2 border-black/10">
           <div className="flex justify-between border-b border-dashed border-black/20 pb-1.5">
             <span className="text-black/70">MQ135</span>
             <span className="font-semibold text-black">{data.readings.MQ135_ppm.toFixed(2)} PPM</span>
@@ -124,8 +124,8 @@ export function AirSafetyIndexPanel({ initialData }: AirSafetyIndexPanelProps) {
         </div>
 
         <div className="rounded-lg p-4 text-black" style={{ backgroundColor: "#004369" }}>
-          <p className="text-xs uppercase tracking-wide mb-3 opacity-80 text-white">AI Prediction</p>
-          <div className="flex items-center gap-3">
+          <p className="text-xs uppercase tracking-wide mb-2 opacity-80 text-white">AI Prediction</p>
+          <div className="flex items-center gap-2 mb-3">
             {isStable ? (
               <>
                 <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
@@ -143,12 +143,12 @@ export function AirSafetyIndexPanel({ initialData }: AirSafetyIndexPanelProps) {
             )}
           </div>
           {data.ml_prediction.confidence && (
-            <p className="text-sm opacity-80 text-white mt-3">
+            <p className="text-sm opacity-80 text-white mb-3">
               Confidence: {(data.ml_prediction.confidence * 100).toFixed(0)}%
             </p>
           )}
         </div>
-        <p className="text-sm" style={{ color: "#343f56" }}>
+        <p className="text-sm mt-3" style={{ color: "#343f56" }}>
           {statusMessage}
         </p>
       </CardContent>
