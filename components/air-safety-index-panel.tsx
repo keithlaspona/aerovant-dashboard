@@ -82,16 +82,16 @@ export function AirSafetyIndexPanel({ initialData }: AirSafetyIndexPanelProps) {
     : "Critical gas levels detected. All activity in this area must cease immediately."
 
   return (
-    <Card className="h-full rounded-2xl" style={{ backgroundColor: "#c9cfcf" }}>
-      <CardHeader className="pb-0">
+    <Card className="h-full rounded-2xl border border-gray-300" style={{ backgroundColor: "#c9cfcf" }}>
+      <CardHeader className="pb-4">
         <CardTitle className="text-lg font-bold tracking-tighter text-[rgba(52,63,86,1)]">Air Safety Index</CardTitle>
         <div className="flex items-center gap-2 text-xs text-black/70">
           <Clock className="w-3 h-3" />
           <span>{new Date(data.timestamp).toLocaleString()}</span>
         </div>
-        <p className="text-[10px] text-black/60 mb-0">{timeAgo}</p>
+        <p className="text-[10px] text-black/60 mt-1">{timeAgo}</p>
       </CardHeader>
-      <CardContent className="space-y-4 pt-4">
+      <CardContent className="space-y-4 px-4 pb-4">
         <div className="bg-white rounded-lg p-4 space-y-1.5 font-mono text-xs border border-black/10">
           <div className="flex justify-between border-b border-dashed border-black/20 pb-1.5">
             <span className="text-black/70">MQ135</span>
