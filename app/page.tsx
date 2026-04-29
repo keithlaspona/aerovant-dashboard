@@ -103,15 +103,15 @@ export default function HomePage() {
           <InteractiveMap reports={nearbyReports} />
 
           <div className="space-y-6">
-            <Card className="hover:shadow-lg transition-shadow border-2 border-border">
+            <Card className="hover:shadow-lg transition-shadow border border-border">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5" />
                   Community Reports
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
+              <CardContent className="pt-6">
+                <div className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-3xl font-bold text-foreground">{nearbyReports.length}</p>
@@ -149,15 +149,15 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow border-2 border-border">
+            <Card className="hover:shadow-lg transition-shadow border border-border">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5" />
                   Quick Stats
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
+              <CardContent className="pt-6">
+                <div className="space-y-6">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">ENV Index</span>
                     <span className="font-semibold text-foreground">
@@ -198,7 +198,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <Card className="hover:shadow-lg transition-shadow border-2 border-primary/20">
+        <Card className="hover:shadow-lg transition-shadow border border-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Info className="w-5 h-5" />

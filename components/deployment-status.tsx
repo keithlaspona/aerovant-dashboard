@@ -85,8 +85,8 @@ export function DeploymentStatus() {
   }
 
   return (
-    <Card className="border-2 border-primary/20 shadow-lg">
-      <CardHeader className="bg-gradient-to-r from-primary/5 to-accent/5">
+    <Card className="border border-border shadow-lg">
+      <CardHeader className="bg-muted/30">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
@@ -103,7 +103,7 @@ export function DeploymentStatus() {
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-6">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span className="font-medium">Overall Completion</span>
               <span className="text-muted-foreground">{overallProgress}%</span>
@@ -115,7 +115,7 @@ export function DeploymentStatus() {
             {phases.map((phase, index) => (
               <div
                 key={phase.id}
-                className="p-4 rounded-lg border-2 border-primary/10 bg-gradient-to-r from-background to-primary/5 hover:border-primary/30 transition-all"
+                className="p-4 rounded-lg border border-border bg-muted/20 hover:bg-muted/40 transition-colors"
               >
                 <div className="flex items-start gap-4">
                   <div className="mt-1">{getStatusIcon(phase.status)}</div>
@@ -130,7 +130,7 @@ export function DeploymentStatus() {
                       {getStatusBadge(phase.status)}
                     </div>
                     {phase.status !== "pending" && (
-                      <div className="space-y-1">
+                      <div className="space-y-2">
                         <Progress value={phase.progress} className="h-2" />
                         <p className="text-xs text-muted-foreground text-right">{phase.progress}%</p>
                       </div>
@@ -141,7 +141,7 @@ export function DeploymentStatus() {
             ))}
           </div>
 
-          <div className="pt-4 border-t border-border">
+          <div className="pt-6 border-t border-border">
             <p className="text-sm text-muted-foreground text-center">
               Last updated: {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
             </p>

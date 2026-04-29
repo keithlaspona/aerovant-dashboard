@@ -58,8 +58,8 @@ export function AirQualityStatusPanel({ data }: AirQualityStatusPanelProps) {
       <CardHeader className="pb-3">
         <CardTitle className="text-white text-lg font-bold">Air Quality Status</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="grid grid-cols-[1fr_1fr_auto] grid-rows-[auto_1fr] gap-3">
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-[1fr_1fr_auto] grid-rows-[auto_1fr] gap-4">
           <div
             className="rounded-xl py-2 px-3 flex flex-col items-center justify-center max-h-36 -mt-5"
             style={{ backgroundColor: "#626e80" }}

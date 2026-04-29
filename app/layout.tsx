@@ -5,6 +5,7 @@ import { GeistMono } from "geist/font/mono"
 import "./globals.css"
 import { Suspense } from "react"
 import { ToastProvider } from "@/components/ui/toast"
+import { SimulationProvider } from "@/lib/simulation-context"
 
 export const metadata: Metadata = {
   title: "Aerovant - Air Quality Monitoring System",
@@ -20,9 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-        <ToastProvider>
-          <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
-        </ToastProvider>
+        <SimulationProvider>
+          <ToastProvider>
+            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+          </ToastProvider>
+        </SimulationProvider>
       </body>
     </html>
   )

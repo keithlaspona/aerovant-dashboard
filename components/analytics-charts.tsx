@@ -45,12 +45,12 @@ export function AnalyticsCharts({ data }: AnalyticsChartsProps) {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="border border-border">
         <CardHeader>
           <CardTitle>Air Quality Index (MQ135)</CardTitle>
           <CardDescription>Primary air quality indicator over time</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={chartData}>
               <defs>
@@ -82,12 +82,12 @@ export function AnalyticsCharts({ data }: AnalyticsChartsProps) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border border-border">
         <CardHeader>
           <CardTitle>Gas Sensors Comparison</CardTitle>
           <CardDescription>Multiple gas sensor readings over time</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -111,12 +111,12 @@ export function AnalyticsCharts({ data }: AnalyticsChartsProps) {
       </Card>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <Card>
+        <Card className="border border-border">
           <CardHeader>
             <CardTitle>Temperature Trend</CardTitle>
             <CardDescription>Environmental temperature readings</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -135,12 +135,12 @@ export function AnalyticsCharts({ data }: AnalyticsChartsProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border border-border">
           <CardHeader>
             <CardTitle>Humidity Trend</CardTitle>
             <CardDescription>Environmental humidity readings</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />

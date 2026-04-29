@@ -15,7 +15,7 @@ interface AirQualityCardProps {
 export function AirQualityCard({ data }: AirQualityCardProps) {
   if (!data) {
     return (
-      <Card className="border-2 border-border">
+      <Card className="border border-border">
         <CardHeader>
           <CardTitle>Air Quality Status</CardTitle>
         </CardHeader>
@@ -28,7 +28,7 @@ export function AirQualityCard({ data }: AirQualityCardProps) {
 
   if (!data.ml_prediction || data.ml_prediction.classification === undefined) {
     return (
-      <Card className="border-2 border-border">
+      <Card className="border border-border">
         <CardHeader>
           <CardTitle>Air Quality Status</CardTitle>
         </CardHeader>
@@ -51,19 +51,19 @@ export function AirQualityCard({ data }: AirQualityCardProps) {
   ]
 
   return (
-    <Card className="overflow-hidden border-2 border-border hover:shadow-lg transition-shadow">
-      <CardHeader className="bg-muted/30">
+    <Card className="overflow-hidden border border-border hover:shadow-lg transition-shadow">
+      <CardHeader className="bg-muted/50">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Activity className="w-6 h-6" />
             Air Quality Status
           </CardTitle>
-          <Badge className={cn("text-base font-bold border-2 px-4 py-1", colorClass)}>{airQualityStatus}</Badge>
+          <Badge className={cn("text-base font-bold px-4 py-1", colorClass)}>{airQualityStatus}</Badge>
         </div>
-        <p className="text-sm text-muted-foreground mt-1">Last updated: {formatTimestamp(data.timestamp)}</p>
+        <p className="text-sm text-muted-foreground mt-2">Last updated: {formatTimestamp(data.timestamp)}</p>
       </CardHeader>
       <CardContent className="pt-6">
-        <div className="flex gap-6">
+        <div className="flex gap-8">
           {/* Bar Chart Section - 70% */}
           <div className="flex-[0_0_68%]">
             <h4 className="text-sm font-semibold mb-4 text-foreground flex items-center gap-2">
@@ -103,11 +103,11 @@ export function AirQualityCard({ data }: AirQualityCardProps) {
           </div>
 
           {/* Temperature & Humidity Section - 30% */}
-          <div className="flex-[0_0_30%] flex flex-col gap-4 pl-2">
+          <div className="flex-[0_0_30%] flex flex-col gap-4">
             {/* Temperature Card */}
             <Card className="border border-border bg-card/50">
               <CardContent className="pt-6">
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Thermometer className="w-4 h-4" />
                     Temperature
@@ -121,7 +121,7 @@ export function AirQualityCard({ data }: AirQualityCardProps) {
             {/* Humidity Card */}
             <Card className="border border-border bg-card/50">
               <CardContent className="pt-6">
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <p className="text-sm text-muted-foreground flex items-center gap-2">
                     <Droplets className="w-4 h-4" />
                     Humidity

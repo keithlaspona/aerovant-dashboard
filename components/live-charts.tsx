@@ -149,12 +149,12 @@ export function LiveCharts() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="border border-border">
         <CardHeader>
           <CardTitle>Live Gas Sensors</CardTitle>
           <CardDescription>Real-time gas sensor readings (updates every 5 seconds)</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {gasChartData.length === 0 ? (
             <div className="h-[300px] flex items-center justify-center text-muted-foreground">Waiting for data...</div>
           ) : (
@@ -176,12 +176,12 @@ export function LiveCharts() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border border-border">
         <CardHeader>
           <CardTitle>Live Environment Data</CardTitle>
           <CardDescription>Real-time temperature and humidity readings</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {envChartData.length === 0 ? (
             <div className="h-[250px] flex items-center justify-center text-muted-foreground">
               Waiting for data... (fetching from sensor every 5 seconds)
@@ -202,7 +202,7 @@ export function LiveCharts() {
         </CardContent>
       </Card>
 
-      <Card className="bg-gradient-to-br from-primary/5 to-accent/5">
+      <Card className="border border-border bg-muted/30">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Download className="w-5 h-5" />
@@ -210,7 +210,7 @@ export function LiveCharts() {
           </CardTitle>
           <CardDescription>Export sensor data for analysis</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div>
             <Button onClick={downloadLiveData} className="w-full gap-2">
               <Download className="w-4 h-4" />
@@ -218,7 +218,7 @@ export function LiveCharts() {
             </Button>
           </div>
 
-          <div className="pt-4 border-t border-border space-y-4">
+          <div className="pt-6 border-t border-border space-y-6">
             <h4 className="font-semibold text-foreground flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               Download Date Range
@@ -243,7 +243,7 @@ export function LiveCharts() {
                 />
               </div>
             </div>
-            <Button onClick={downloadRangeData} variant="outline" className="w-full gap-2 bg-transparent">
+            <Button onClick={downloadRangeData} variant="outline" className="w-full gap-2">
               <Download className="w-4 h-4" />
               Download Range Data
             </Button>

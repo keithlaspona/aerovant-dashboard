@@ -42,33 +42,33 @@ export function StatsOverview({ sensorData }: StatsOverviewProps) {
   ]
 
   return (
-    <Card>
+    <Card className="border border-border">
       <CardHeader>
         <CardTitle>Key Metrics</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {stats.map((stat, index) => (
-          <div key={index} className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
+          <div key={index} className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
               <p className="text-2xl font-bold text-foreground">{stat.value}</p>
             </div>
-            <div className="flex items-center gap-1 text-sm">
+            <div className="flex items-center gap-1 text-sm whitespace-nowrap">
               {stat.trend === "up" && (
                 <>
-                  <TrendingUp className="w-4 h-4 text-red-600 dark:text-red-400" />
+                  <TrendingUp className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
                   <span className="text-red-600 dark:text-red-400">{stat.change}</span>
                 </>
               )}
               {stat.trend === "down" && (
                 <>
-                  <TrendingDown className="w-4 h-4 text-green-600 dark:text-green-400" />
+                  <TrendingDown className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
                   <span className="text-green-600 dark:text-green-400">{stat.change}</span>
                 </>
               )}
               {stat.trend === "stable" && (
                 <>
-                  <Minus className="w-4 h-4 text-muted-foreground" />
+                  <Minus className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                   <span className="text-muted-foreground">{stat.change}</span>
                 </>
               )}
@@ -76,8 +76,8 @@ export function StatsOverview({ sensorData }: StatsOverviewProps) {
           </div>
         ))}
 
-        <div className="pt-4 border-t border-border">
-          <p className="text-sm text-muted-foreground mb-1">AI Prediction</p>
+        <div className="pt-6 border-t border-border">
+          <p className="text-sm text-muted-foreground mb-2">AI Prediction</p>
           <p className="text-lg font-semibold text-primary">
             {sensorData.ml_prediction?.classification !== undefined
               ? typeof sensorData.ml_prediction.classification === "number"

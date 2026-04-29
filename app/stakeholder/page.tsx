@@ -76,11 +76,11 @@ export default function StakeholderDashboard() {
         </div>
 
         <div className="grid md:grid-cols-4 gap-4 mb-6">
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow border border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Reports</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-3">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-primary" />
                 <span className="text-3xl font-bold text-foreground">{totalReports}</span>
@@ -88,11 +88,11 @@ export default function StakeholderDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow border border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">Pending Review</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-3">
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
                 <span className="text-3xl font-bold text-foreground">{pendingReports}</span>
@@ -100,11 +100,11 @@ export default function StakeholderDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow border border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">Investigating</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-3">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <span className="text-3xl font-bold text-foreground">{investigatingReports}</span>
@@ -112,11 +112,11 @@ export default function StakeholderDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow border border-border">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">Resolved</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-3">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
                 <span className="text-3xl font-bold text-foreground">{resolvedReports}</span>

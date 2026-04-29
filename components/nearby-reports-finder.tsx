@@ -41,7 +41,7 @@ export function NearbyReportsFinder({ sensorLat, sensorLng }: NearbyReportsFinde
   }
 
   return (
-    <Card>
+    <Card className="border border-border">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <MapPin className="w-5 h-5" />
@@ -49,7 +49,7 @@ export function NearbyReportsFinder({ sensorLat, sensorLng }: NearbyReportsFinde
         </CardTitle>
         <CardDescription>Find citizen reports within 10km of the sensor location</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         <Button onClick={findNearbyReports} disabled={loading} className="w-full gap-2">
           {loading ? (
             <>Loading...</>
@@ -62,7 +62,7 @@ export function NearbyReportsFinder({ sensorLat, sensorLng }: NearbyReportsFinde
         </Button>
 
         {showReports && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h4 className="font-semibold text-foreground">
                 {reports.length} {reports.length === 1 ? "Report" : "Reports"} Found
@@ -73,13 +73,13 @@ export function NearbyReportsFinder({ sensorLat, sensorLng }: NearbyReportsFinde
             </div>
 
             {reports.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">No reports found within 10km</p>
+              <p className="text-muted-foreground text-center py-8">No reports found within 10km</p>
             ) : (
               <div className="space-y-3 max-h-[400px] overflow-y-auto">
                 {reports.map((report, index) => (
-                  <Card key={report.id || index} className="bg-muted/50">
+                  <Card key={report.id || index} className="border border-border bg-muted/30">
                     <CardContent className="pt-4">
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <Badge variant="outline">{getReportTypeLabel(report.report_type)}</Badge>
                           <span className="text-xs text-muted-foreground">{report.distance_km.toFixed(2)} km away</span>
