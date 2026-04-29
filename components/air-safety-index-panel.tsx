@@ -91,8 +91,8 @@ export function AirSafetyIndexPanel({ initialData }: AirSafetyIndexPanelProps) {
         </div>
         <p className="text-[10px] text-black/60 mb-0">{timeAgo}</p>
       </CardHeader>
-      <CardContent className="space-y-3 pt-4">
-        <div className="bg-white rounded-lg p-4 space-y-2 font-mono text-xs border border-black/10">
+      <CardContent className="space-y-4 pt-4">
+        <div className="bg-white rounded-lg p-4 space-y-1.5 font-mono text-xs border border-black/10">
           <div className="flex justify-between border-b border-dashed border-black/20 pb-1.5">
             <span className="text-black/70">MQ135</span>
             <span className="font-semibold text-black">{data.readings.MQ135_ppm.toFixed(2)} PPM</span>
@@ -125,7 +125,7 @@ export function AirSafetyIndexPanel({ initialData }: AirSafetyIndexPanelProps) {
 
         <div className="rounded-lg p-4 text-black" style={{ backgroundColor: "#004369" }}>
           <p className="text-xs uppercase tracking-wide mb-3 opacity-80 text-white">AI Prediction</p>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3">
             {isStable ? (
               <>
                 <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
@@ -143,7 +143,7 @@ export function AirSafetyIndexPanel({ initialData }: AirSafetyIndexPanelProps) {
             )}
           </div>
           {data.ml_prediction.confidence && (
-            <p className="text-sm opacity-80 text-white">
+            <p className="text-sm opacity-80 text-white mt-3">
               Confidence: {(data.ml_prediction.confidence * 100).toFixed(0)}%
             </p>
           )}
